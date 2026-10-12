@@ -1,0 +1,66 @@
+{
+  "id": "left-event",
+  "name": "행사 한 줄 공지",
+  "category": "학교 행사 공지",
+  "signage": "left",
+  "description": "라벨 + 제목 + 일시·장소",
+  "background": {
+    "type": "solid",
+    "color": "#156082"
+  },
+  "objects": [
+    {
+      "type": "rect",
+      "left": 48,
+      "top": 84,
+      "width": 240,
+      "height": 88,
+      "fill": "#FFE38A",
+      "rx": 44,
+      "name": "라벨 배경"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "행사 안내",
+      "left": 48,
+      "top": 100,
+      "width": 240,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 48,
+      "fontWeight": 800,
+      "fill": "#173E50",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "name": "라벨"
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "2027학년도 신입생 입학설명회",
+      "left": 328,
+      "top": 36,
+      "width": 1300,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 80,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "11월 8일(토) 오후 2시 · 본교 대강당",
+      "left": 328,
+      "top": 150,
+      "width": 1300,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 54,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ]
+}

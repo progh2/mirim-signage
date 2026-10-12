@@ -1,0 +1,88 @@
+{
+  "id": "right-art-gallery",
+  "name": "공공PR · 명화 갤러리",
+  "category": "공공PR · 명화",
+  "signage": "right",
+  "description": "저작권 만료 명화 + 작품 캡션",
+  "background": {
+    "type": "solid",
+    "color": "#4A5563"
+  },
+  "objects": [
+    {
+      "type": "imageSlot",
+      "name": "명화 이미지 자리",
+      "left": 48,
+      "top": 48,
+      "width": 720,
+      "height": 544,
+      "label": "명화 이미지 넣기\n(저작권 만료 작품)"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림 아트 갤러리",
+      "left": 816,
+      "top": 104,
+      "width": 416,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "해바라기",
+      "left": 816,
+      "top": 164,
+      "width": 416,
+      "fontFamily": "Noto Serif KR",
+      "fontSize": 84,
+      "fontWeight": 900,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "rect",
+      "left": 816,
+      "top": 280,
+      "width": 80,
+      "height": 6,
+      "fill": "#FFE38A",
+      "name": "구분선"
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "빈센트 반 고흐\n1888년",
+      "left": 816,
+      "top": 312,
+      "width": 416,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 52,
+      "fontWeight": 700,
+      "fill": "#F6F1E4",
+      "textAlign": "left",
+      "lineHeight": 1.3
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "이달의 명화",
+      "left": 816,
+      "top": 524,
+      "width": 416,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#BFE4F4",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ],
+  "notes": "명화는 저작권이 만료된 작품만 사용하세요(작가 사후 70년 경과). 이미지 자리를 두 번 클릭해 넣습니다."
+}

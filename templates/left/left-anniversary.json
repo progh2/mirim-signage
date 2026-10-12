@@ -1,0 +1,41 @@
+{
+  "id": "left-anniversary",
+  "name": "기념일 문구",
+  "category": "기념일",
+  "signage": "left",
+  "description": "가운데 정렬 기념일 메시지",
+  "background": {
+    "type": "solid",
+    "color": "#2F6464"
+  },
+  "objects": [
+    {
+      "type": "text",
+      "role": "title",
+      "text": "10월 9일은 한글날입니다",
+      "left": 32,
+      "top": 36,
+      "width": 1600,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 88,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "우리 말과 글을 아끼고 사랑합니다",
+      "left": 32,
+      "top": 156,
+      "width": 1600,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 52,
+      "fontWeight": 800,
+      "fill": "#C8EBD9",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    }
+  ]
+}

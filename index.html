@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 외부 스크립트를 쓰지 않으며, API 호출은 사용자가 설정한 주소(https 또는 로컬 Ollama)로만 나갑니다 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: blob:; connect-src 'self' https: http://localhost:* http://127.0.0.1:* data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>미림 사이니지 메이커</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fonts/pretendard/font.css">
+<link rel="stylesheet" href="css/app.css">
+<script src="vendor/fabric-5.3.0.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <div>
+      <strong>미림 사이니지 메이커</strong>
+      <small id="guideVersion">가이드 V0.9 기준</small>
+    </div>
+  </div>
+
+  <div class="signage-switch" role="tablist" aria-label="사이니지 선택">
+    <button class="sg-btn" data-signage="left" role="tab">
+      <span class="sg-shape left" aria-hidden="true"></span>
+      <span><b>좌측 가로배너</b><small>6.5:1 · 1664×256</small></span>
+    </button>
+    <button class="sg-btn" data-signage="right" role="tab">
+      <span class="sg-shape right" aria-hidden="true"></span>
+      <span><b>우측 와이드</b><small>2:1 · 1280×640</small></span>
+    </button>
+  </div>
+
+  <div class="top-actions">
+    <button class="icon-btn" id="btnUndo" title="실행 취소 (Ctrl+Z)">↶</button>
+    <button class="icon-btn" id="btnRedo" title="다시 실행 (Ctrl+Shift+Z)">↷</button>
+    <span class="sep"></span>
+    <button class="btn ghost" id="btnNew" title="새로 만들기">새로 만들기</button>
+    <button class="btn ghost" id="btnOpen" title="프로젝트 파일 열기">열기</button>
+    <button class="btn ghost" id="btnSave" title="프로젝트 파일 저장 (Ctrl+S)">저장</button>
+    <span class="sep"></span>
+    <button class="btn ghost" id="btnLed" title="LED 화면 미리보기">LED 미리보기</button>
+    <div class="dropdown">
+      <button class="btn primary" id="btnExport">PNG 내보내기 ▾</button>
+      <div class="menu" id="exportMenu" hidden>
+        <button data-export="day">주간용 PNG</button>
+        <button data-export="night">야간용 PNG (밝기 낮춤)</button>
+        <button data-export="both">주간 + 야간 둘 다</button>
+      </div>
+    </div>
+    <span class="sep"></span>
+    <button class="btn ghost" id="btnAiSettings" title="AI 연결 설정"><span class="ai-dot" id="aiDot"></span>AI 설정</button>
+    <button class="icon-btn" id="btnHelp" title="도움말">?</button>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- 왼쪽 패널 -->
+  <aside class="sidebar left-panel">
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-tab="templates">템플릿</button>
+      <button class="tab" data-tab="elements">요소</button>
+      <button class="tab" data-tab="layers">레이어</button>
+      <button class="tab" data-tab="ai">AI 디자인</button>
+    </nav>
+
+    <section class="tab-panel active" id="tab-templates">
+      <div class="panel-head">
+        <select id="tplCategory" aria-label="템플릿 분류"></select>
+      </div>
+      <div class="tpl-grid" id="tplGrid"></div>
+      <div class="panel-sub">
+        <h4>내 템플릿</h4>
+        <div class="row gap">
+          <button class="btn small" id="btnSaveTpl">현재 디자인을 템플릿으로 저장</button>
+        </div>
+        <div class="row gap">
+          <button class="btn small ghost" id="btnImportTpl">템플릿 파일 가져오기</button>
+          <button class="btn small ghost" id="btnExportTpl">템플릿 파일로 내보내기</button>
+        </div>
+        <div class="tpl-grid" id="userTplGrid"></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="tab-elements">
+      <h4>글자 <small>가이드 03-4 크기 자동 적용</small></h4>
+      <div class="el-text-presets">
+        <button class="el-text title" data-add-text="title">제목<small>60pt · 80px</small></button>
+        <button class="el-text body" data-add-text="body">본문<small>48pt · 64px</small></button>
+        <button class="el-text caption" data-add-text="caption">보조설명<small>32pt · 42px</small></button>
+      </div>
+      <h4>도형</h4>
+      <div class="el-shapes">
+        <button data-add-shape="rect" title="사각형"><svg viewBox="0 0 40 40"><rect x="6" y="10" width="28" height="20"/></svg></button>
+        <button data-add-shape="round" title="둥근 사각형"><svg viewBox="0 0 40 40"><rect x="6" y="10" width="28" height="20" rx="6"/></svg></button>
+        <button data-add-shape="circle" title="원"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="13"/></svg></button>
+        <button data-add-shape="triangle" title="삼각형"><svg viewBox="0 0 40 40"><path d="M20 8 L34 32 L6 32 Z"/></svg></button>
+        <button data-add-shape="line" title="선"><svg viewBox="0 0 40 40"><path d="M6 20 H34" stroke-width="4"/></svg></button>
+        <button data-add-shape="band" title="가로 띠"><svg viewBox="0 0 40 40"><rect x="2" y="15" width="36" height="10"/></svg></button>
+        <button data-add-shape="pill" title="알약형 라벨"><svg viewBox="0 0 40 40"><rect x="5" y="13" width="30" height="14" rx="7"/></svg></button>
+        <button data-add-shape="slot" title="이미지 자리"><svg viewBox="0 0 40 40"><rect x="6" y="9" width="28" height="22" fill="none" stroke-dasharray="3 2" stroke-width="2"/></svg></button>
+      </div>
+      <h4>이미지</h4>
+      <div class="row gap">
+        <button class="btn small" id="btnAddImage">이미지 추가</button>
+        <button class="btn small ghost" id="btnAddBgImage">배경 이미지로 추가</button>
+      </div>
+      <p class="hint">명화는 저작권이 만료된 작품만 사용하세요. 밝은 사진은 배경 어둡게(속성) 조절을 권장합니다.</p>
+      <h4>배경색 <small>명도 5~8단계 · 중간~저채도</small></h4>
+      <div class="swatches" id="bgSwatches"></div>
+      <div class="row gap">
+        <button class="btn small ghost" id="btnBgSettings">배경 상세 설정</button>
+      </div>
+      <h4>AI 활용 표시</h4>
+      <button class="btn small ghost" id="btnAddAiLabel">‘AI 활용 제작’ 표시 추가</button>
+      <p class="hint">AI로 만든 이미지·디자인은 표시가 필요합니다 (인공지능 투명성 확보 가이드라인).</p>
+      <h4>글꼴 <small>배포 가능한 무료 글꼴</small></h4>
+      <ul class="font-list" id="fontList"></ul>
+      <button class="btn small ghost" id="btnUserFont">내 글꼴 파일 불러오기 (이 브라우저에서만)</button>
+    </section>
+
+    <section class="tab-panel" id="tab-layers">
+      <p class="hint">위가 앞쪽입니다. 끌어서 순서를 바꾸고, 이름은 두 번 클릭해 바꿉니다.</p>
+      <ul class="layer-list" id="layerList"></ul>
+    </section>
+
+    <section class="tab-panel" id="tab-ai">
+      <div id="aiDesignPanel"></div>
+    </section>
+  </aside>
+
+  <!-- 캔버스 -->
+  <section class="stage-wrap">
+    <div class="stage-toolbar">
+      <span id="stageInfo" class="stage-info"></span>
+      <div class="row gap">
+        <label class="chk"><input type="checkbox" id="optSafe" checked> 안전 여백</label>
+        <label class="chk"><input type="checkbox" id="optGrid"> 격자</label>
+        <label class="chk"><input type="checkbox" id="optRows"> 줄 기준선</label>
+        <span class="sep"></span>
+        <button class="icon-btn" id="zoomOut" title="축소">−</button>
+        <button class="btn small ghost" id="zoomFit" title="화면에 맞춤">맞춤</button>
+        <span id="zoomLabel" class="zoom-label">100%</span>
+        <button class="icon-btn" id="zoomIn" title="확대">+</button>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <div class="canvas-holder" id="canvasHolder">
+        <canvas id="signageCanvas"></canvas>
+        <svg class="overlay" id="overlay" aria-hidden="true"></svg>
+      </div>
+    </div>
+    <div class="stage-foot">
+      <span>도로 위 차량에서 보이는 화면입니다. 크고 굵게, 핵심만.</span>
+      <span class="kbd-hints">Del 삭제 · Ctrl+D 복제 · Ctrl+Z 취소 · 방향키 이동(Shift 10px)</span>
+    </div>
+  </section>
+
+  <!-- 오른쪽 패널 -->
+  <aside class="sidebar right-panel">
+    <section class="card" id="propsCard">
+      <div class="card-head"><h3 id="propsTitle">속성</h3></div>
+      <div id="propsBody"></div>
+    </section>
+    <section class="card" id="checkCard">
+      <div class="card-head">
+        <h3>가이드 점검</h3>
+        <span class="score" id="checkScore">–</span>
+      </div>
+      <div class="row gap">
+        <button class="btn small" id="btnAutoFix" title="글자 크기·배경 명도·대비를 가이드에 맞게 자동 보정">자동 보정</button>
+        <button class="btn small accent" id="btnAiReview" title="AI가 이미지를 보고 가이드에 따라 점검">AI 점검</button>
+      </div>
+      <ul class="check-list" id="checkList"></ul>
+      <details class="manual">
+        <summary>게시 전 직접 확인</summary>
+        <ul id="manualList"></ul>
+      </details>
+    </section>
+  </aside>
+</main>
+
+<input type="file" id="fileImage" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+<input type="file" id="fileProject" accept=".json,application/json" hidden>
+<input type="file" id="fileTemplate" accept=".json,application/json" hidden>
+<input type="file" id="fileFont" accept=".woff2,.woff,.ttf,.otf" hidden>
+
+<dialog id="modal" class="modal">
+  <form method="dialog" class="modal-inner">
+    <header class="modal-head">
+      <h2 id="modalTitle"></h2>
+      <button class="icon-btn" value="close" aria-label="닫기">✕</button>
+    </header>
+    <div class="modal-body" id="modalBody"></div>
+    <footer class="modal-foot" id="modalFoot"></footer>
+  </form>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>

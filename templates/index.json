@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "categories": [
+    "학교 행사 공지",
+    "기념일",
+    "계절 인사",
+    "공공PR · 명화",
+    "환영",
+    "캠페인 · 안전"
+  ],
+  "templates": [
+    "right/right-event-basic.json",
+    "right/right-admission.json",
+    "right/right-anniversary.json",
+    "right/right-season-autumn.json",
+    "right/right-newyear.json",
+    "right/right-art-gallery.json",
+    "right/right-welcome.json",
+    "right/right-safety.json",
+    "left/left-event.json",
+    "left/left-anniversary.json",
+    "left/left-welcome.json",
+    "left/left-season-board.json",
+    "left/left-safety.json"
+  ]
+}

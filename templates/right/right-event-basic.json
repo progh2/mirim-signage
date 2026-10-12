@@ -1,0 +1,104 @@
+{
+  "id": "right-event-basic",
+  "name": "행사 공지 · 기본",
+  "category": "학교 행사 공지",
+  "signage": "right",
+  "description": "라벨 + 큰 제목 + 일시·장소 2줄",
+  "background": {
+    "type": "solid",
+    "color": "#156082"
+  },
+  "objects": [
+    {
+      "type": "rect",
+      "left": 64,
+      "top": 64,
+      "width": 260,
+      "height": 64,
+      "fill": "#FFE38A",
+      "rx": 32,
+      "name": "라벨 배경"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "학교 행사 안내",
+      "left": 64,
+      "top": 72,
+      "width": 260,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 800,
+      "fill": "#173E50",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "name": "라벨"
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "학부모 공개수업의 날",
+      "left": 64,
+      "top": 168,
+      "width": 1152,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 88,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "rect",
+      "left": 64,
+      "top": 296,
+      "width": 120,
+      "height": 8,
+      "fill": "#FFE38A",
+      "name": "구분선"
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "일시  11월 20일(금) 오전 10시",
+      "left": 64,
+      "top": 336,
+      "width": 1152,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "장소  각 학과 실습실",
+      "left": 64,
+      "top": 424,
+      "width": 1152,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림마이스터고등학교",
+      "left": 64,
+      "top": 536,
+      "width": 1152,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#BFE4F4",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ],
+  "notes": "날짜·장소를 정확히 고친 뒤 내보내세요."
+}

@@ -1,0 +1,145 @@
+{
+  "id": "right-newyear",
+  "name": "연말연시 인사",
+  "category": "계절 인사",
+  "signage": "right",
+  "description": "새해 인사 · 가운데 정렬",
+  "background": {
+    "type": "linear",
+    "angle": 180,
+    "stops": [
+      {
+        "offset": 0,
+        "color": "#2B4A6F"
+      },
+      {
+        "offset": 1,
+        "color": "#57496E"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "left": 120,
+      "top": 90,
+      "radius": 5,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 260,
+      "top": 170,
+      "radius": 4,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 1080,
+      "top": 110,
+      "radius": 6,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 1170,
+      "top": 230,
+      "radius": 4,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 980,
+      "top": 60,
+      "radius": 3,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 200,
+      "top": 470,
+      "radius": 4,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 1110,
+      "top": 480,
+      "radius": 5,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "circle",
+      "left": 640,
+      "top": 50,
+      "radius": 3,
+      "fill": "rgba(255,255,255,0.55)",
+      "name": "별"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "2027 정미년",
+      "left": 48,
+      "top": 96,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 48,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "charSpacing": 100
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "새해 복 많이 받으세요",
+      "left": 48,
+      "top": 176,
+      "width": 1184,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 104,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "모두의 꿈을 응원합니다",
+      "left": 48,
+      "top": 330,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#F6F1E4",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림마이스터고등학교",
+      "left": 48,
+      "top": 530,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "opacity": 0.85
+    }
+  ]
+}

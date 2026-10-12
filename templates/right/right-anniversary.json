@@ -1,0 +1,86 @@
+{
+  "id": "right-anniversary",
+  "name": "기념일 · 한글날",
+  "category": "기념일",
+  "signage": "right",
+  "description": "법정기념일 공익 메시지 (공공PR)",
+  "background": {
+    "type": "solid",
+    "color": "#2F6464"
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "left": 820,
+      "top": 90,
+      "radius": 280,
+      "fill": "rgba(255,255,255,0.06)",
+      "name": "장식 원 1"
+    },
+    {
+      "type": "circle",
+      "left": 1010,
+      "top": -120,
+      "radius": 190,
+      "fill": "rgba(255,227,138,0.12)",
+      "name": "장식 원 2"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "제580돌",
+      "left": 72,
+      "top": 80,
+      "width": 600,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "한글날",
+      "left": 72,
+      "top": 136,
+      "width": 900,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 120,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "우리 말과 글을\n아끼고 사랑합니다",
+      "left": 72,
+      "top": 300,
+      "width": 900,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "10월 9일",
+      "left": 72,
+      "top": 522,
+      "width": 600,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#C8EBD9",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ],
+  "notes": "기념일 이름·날짜·문구만 바꿔 다른 기념일에도 쓸 수 있어요."
+}

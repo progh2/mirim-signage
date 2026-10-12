@@ -1,0 +1,89 @@
+{
+  "id": "right-admission",
+  "name": "입학설명회",
+  "category": "학교 행사 공지",
+  "signage": "right",
+  "description": "가운데 정렬, 그라데이션 배경, 강조 띠",
+  "background": {
+    "type": "linear",
+    "angle": 135,
+    "stops": [
+      {
+        "offset": 0,
+        "color": "#2B4A6F"
+      },
+      {
+        "offset": 1,
+        "color": "#156082"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "중학교 3학년 학생·학부모님을 초대합니다",
+      "left": 48,
+      "top": 72,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#BFE4F4",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "2027학년도\n신입생 입학설명회",
+      "left": 48,
+      "top": 140,
+      "width": 1184,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 84,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.15
+    },
+    {
+      "type": "rect",
+      "left": 0,
+      "top": 384,
+      "width": 1280,
+      "height": 116,
+      "fill": "rgba(0,0,0,0.22)",
+      "name": "강조 띠"
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "11. 8.(토) 14:00 · 본교 대강당",
+      "left": 48,
+      "top": 404,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림마이스터고등학교",
+      "left": 48,
+      "top": 538,
+      "width": 1184,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "opacity": 0.85
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "left-safety",
+  "name": "학교 앞 서행",
+  "category": "캠페인 · 안전",
+  "signage": "left",
+  "description": "속도 표지 + 서행 안내",
+  "background": {
+    "type": "solid",
+    "color": "#3E5F45"
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "left": 40,
+      "top": 28,
+      "radius": 90,
+      "fill": "#F6F1E4",
+      "stroke": "#C9504A",
+      "strokeWidth": 18,
+      "name": "속도 표지"
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "30",
+      "left": 29,
+      "top": 70,
+      "width": 220,
+      "fontFamily": "Black Han Sans",
+      "fontSize": 100,
+      "fontWeight": 400,
+      "fill": "#2B2B2B",
+      "textAlign": "center",
+      "lineHeight": 1.2,
+      "name": "속도 숫자"
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "학교 앞, 천천히 가 주세요",
+      "left": 300,
+      "top": 44,
+      "width": 1330,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 84,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "등하굣길 학생 안전을 위해 서행해 주세요",
+      "left": 300,
+      "top": 154,
+      "width": 1330,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 52,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ]
+}

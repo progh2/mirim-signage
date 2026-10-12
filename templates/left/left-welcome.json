@@ -1,0 +1,65 @@
+{
+  "id": "left-welcome",
+  "name": "방문 환영",
+  "category": "환영",
+  "signage": "left",
+  "description": "영문 라벨 + 환영 문구",
+  "background": {
+    "type": "solid",
+    "color": "#6E3B46"
+  },
+  "objects": [
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "WELCOME",
+      "left": 48,
+      "top": 104,
+      "width": 280,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 44,
+      "fontWeight": 900,
+      "fill": "#F6CDB8",
+      "textAlign": "left",
+      "lineHeight": 1.2,
+      "charSpacing": 150
+    },
+    {
+      "type": "rect",
+      "left": 340,
+      "top": 64,
+      "width": 6,
+      "height": 128,
+      "fill": "#FFE38A",
+      "name": "세로 막대"
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "미림마이스터고 방문을 환영합니다",
+      "left": 376,
+      "top": 40,
+      "width": 1256,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 80,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "○○교육청 방문단 여러분",
+      "left": 376,
+      "top": 150,
+      "width": 1256,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 52,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ]
+}

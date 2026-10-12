@@ -1,0 +1,104 @@
+{
+  "id": "right-season-autumn",
+  "name": "계절 인사 · 가을",
+  "category": "계절 인사",
+  "signage": "right",
+  "description": "계절 변화를 알리는 공익 메시지",
+  "background": {
+    "type": "linear",
+    "angle": 90,
+    "stops": [
+      {
+        "offset": 0,
+        "color": "#6A4B38"
+      },
+      {
+        "offset": 1,
+        "color": "#5C5F3A"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "type": "circle",
+      "left": 930,
+      "top": 60,
+      "radius": 150,
+      "fill": "rgba(240,160,90,0.22)",
+      "name": "장식 1"
+    },
+    {
+      "type": "circle",
+      "left": 1080,
+      "top": 300,
+      "radius": 110,
+      "fill": "rgba(240,190,110,0.18)",
+      "name": "장식 2"
+    },
+    {
+      "type": "circle",
+      "left": 860,
+      "top": 380,
+      "radius": 70,
+      "fill": "rgba(240,160,90,0.16)",
+      "name": "장식 3"
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "AUTUMN",
+      "left": 72,
+      "top": 84,
+      "width": 600,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 800,
+      "fill": "#F6CDB8",
+      "textAlign": "left",
+      "lineHeight": 1.2,
+      "charSpacing": 300
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "깊어가는 가을,",
+      "left": 72,
+      "top": 148,
+      "width": 900,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 92,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "오늘도 따뜻한\n하루 보내세요",
+      "left": 72,
+      "top": 276,
+      "width": 900,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#F6F1E4",
+      "textAlign": "left",
+      "lineHeight": 1.25
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림마이스터고등학교가 전하는 계절 인사",
+      "left": 72,
+      "top": 524,
+      "width": 900,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#F6CDB8",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ]
+}

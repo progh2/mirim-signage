@@ -1,0 +1,121 @@
+{
+  "version": "0.9",
+  "source": "미림 디지털 사이니지 활용 가이드 V0.9 (2026.10.11)",
+  "pxPerPt": 1.3281,
+  "ptNote": "파워포인트 34cm × 17cm 슬라이드를 PNG로 내보내면 1280 × 640px 이 되므로 1pt ≈ 1.33px 로 환산합니다. 좌측 배너(6.5m/1664px)와 우측 와이드(5m/1280px)는 픽셀 간격이 약 3.9mm로 같으므로 같은 픽셀 크기를 적용합니다.",
+
+  "signages": {
+    "right": {
+      "id": "right",
+      "name": "정문 우측 · 2:1 와이드형",
+      "short": "우측 와이드 2:1",
+      "width": 1280,
+      "height": 640,
+      "ratio": "2:1",
+      "physical": "가로 5m × 세로 2.5m (12.5㎡)",
+      "safeMargin": 48,
+      "maxTextLines": 8,
+      "maxChars": 90,
+      "ref": "01-1"
+    },
+    "left": {
+      "id": "left",
+      "name": "정문 좌측 · 가로배너형 6.5:1",
+      "short": "좌측 가로배너 6.5:1",
+      "width": 1664,
+      "height": 256,
+      "ratio": "6.5:1",
+      "physical": "가로 6.5m × 세로 1m (6.5㎡)",
+      "safeMargin": 28,
+      "maxTextLines": 3,
+      "maxChars": 40,
+      "ref": "01-1"
+    }
+  },
+
+  "typography": {
+    "ref": "03-4",
+    "presets": [
+      { "role": "title",   "label": "제목",     "pt": 60, "px": 80, "minPx": 72, "desc": "제목 60~54pt (Cafe24 당당해 기준)" },
+      { "role": "body",    "label": "본문",     "pt": 48, "px": 64, "minPx": 60, "desc": "본문 48pt, 세로 8줄 정도" },
+      { "role": "caption", "label": "보조설명", "pt": 32, "px": 42, "minPx": 42, "desc": "보조설명 32pt, 세로 12줄 정도" }
+    ],
+    "minPx": 42,
+    "hardMinPx": 32,
+    "minWeightVariable": 600,
+    "lineHeight": 1.25
+  },
+
+  "color": {
+    "ref": "03-3",
+    "note": "명도 단계: 1(흰색) ~ 10(검정). 배경은 5번(중간 명도)~8번(어두운 명도), 중간~저채도. 9번·검정 배경은 주간에 LED 반사로 탁하게 보여 지양.",
+    "lightnessLevels": [
+      { "level": 1, "hex": "#FFFFFF" }, { "level": 2, "hex": "#F3F3F3" }, { "level": 3, "hex": "#EEEEEE" },
+      { "level": 4, "hex": "#DDDDDD" }, { "level": 5, "hex": "#CCCCCC" }, { "level": 6, "hex": "#B0B0B0" },
+      { "level": 7, "hex": "#999999" }, { "level": 8, "hex": "#666666" }, { "level": 9, "hex": "#444444" },
+      { "level": 10, "hex": "#000000" }
+    ],
+    "bgL": { "failBelow": 0.30, "warnBelow": 0.39, "recommendedMin": 0.40, "recommendedMax": 0.62, "warnAbove": 0.85, "autoFixMax": 0.48 },
+    "bgLNote": "OKLCH 명도 L 기준: 5단계≈0.85, 8단계≈0.51, 9단계≈0.39, 검정=0. 가이드 예시색 #156082 은 L≈0.46.",
+    "bgChroma": { "recommendedMax": 0.12, "max": 0.16 },
+    "shapeChromaMax": 0.19,
+    "minContrast": 4.5,
+    "goodContrast": 7,
+    "backgrounds": [
+      { "name": "가이드 예시 블루", "hex": "#156082" },
+      { "name": "딥 네이비",       "hex": "#2B4A6F" },
+      { "name": "틸 그린",         "hex": "#2F6464" },
+      { "name": "포레스트",       "hex": "#3E5F45" },
+      { "name": "올리브",         "hex": "#5C5F3A" },
+      { "name": "브라운",         "hex": "#6A4B38" },
+      { "name": "버건디",         "hex": "#6E3B46" },
+      { "name": "퍼플 그레이",     "hex": "#57496E" },
+      { "name": "슬레이트",       "hex": "#4A5563" },
+      { "name": "차콜 그레이",     "hex": "#5A5A5A" }
+    ],
+    "texts": [
+      { "name": "흰색",       "hex": "#FFFFFF" },
+      { "name": "웜 화이트",   "hex": "#F6F1E4" },
+      { "name": "소프트 옐로", "hex": "#FFE38A" },
+      { "name": "스카이",     "hex": "#BFE4F4" },
+      { "name": "피치",       "hex": "#F6CDB8" },
+      { "name": "민트",       "hex": "#C8EBD9" }
+    ]
+  },
+
+  "brightness": {
+    "ref": "03-1, 03-5",
+    "aplGood": 0.25,
+    "aplWarn": 0.40,
+    "whiteAreaWarn": 0.25,
+    "nightFactor": 0.7,
+    "note": "서울시 옥외전광판 밝기 권고(2026.4.1 시행): 주간 7,000cd/㎡ 이하, 야간 중형(30~225㎡) 해진 후 60분~자정 500, 자정 이후 400cd/㎡ 이하. 우측 사이니지(12.5㎡)는 대상 크기는 아니지만 도로와 가까워 고려 필요. 이미지 평균 밝기(APL)로 근사 점검합니다."
+  },
+
+  "rules": [
+    { "id": "ratio",      "ref": "01-1",  "text": "사이니지별 정확한 해상도(좌 1664×256, 우 1280×640)로 제작. 비율 오류 금지." },
+    { "id": "font-size",  "ref": "03-4",  "text": "크고 굵은 글씨, 핵심 내용 위주. 제목 60~54pt, 본문 48pt, 보조설명 32pt(약 42px) 미만 금지." },
+    { "id": "font-face",  "ref": "03-2",  "text": "두꺼운 고딕 계열 권장(무료 글꼴). 얇은 글꼴·캐주얼 글꼴·삐침 있는 글꼴의 본문 사용 지양." },
+    { "id": "bg-color",   "ref": "03-3",  "text": "어두운 배경 + 밝은 글씨. 배경은 명도 5~8단계, 중간~저채도. 9단계·검정 배경 지양. 원색·고채도 지양." },
+    { "id": "amount",     "ref": "03-4",  "text": "인쇄 광고물 수준의 많은 정보 금지. 문서 성격의 정보 지양." },
+    { "id": "light",      "ref": "02-2",  "text": "밝은 화면은 야간 빛 공해 민원 유발. 주/야간 밝기 조절 또는 야간용 콘텐츠 별도 생성." },
+    { "id": "motion",     "ref": "03-1",  "text": "영상은 빠른 전환·깜빡임 금지, 슬라이드 전환 수준 모션만. 옥외 영상은 구청 심의 대상." },
+    { "id": "ad",         "ref": "02-2",  "text": "광고 성격의 홍보는 유의(관할 지자체 허가 이슈). 공공PR은 학교를 직접 홍보하지 않는 공익형 콘텐츠." },
+    { "id": "copyright",  "ref": "03-1",  "text": "명화는 저작권이 만료된 작품 위주. 글꼴은 무료 사용 가능한 글꼴." },
+    { "id": "ai-label",   "ref": "03-1",  "text": "AI 활용 제작 시 AI 활용 사실 표시(인공지능 투명성 확보 가이드라인, 2026.1.26)." }
+  ],
+
+  "manualChecklist": [
+    { "id": "m-ad",    "text": "상업적 광고·학교 직접 홍보 성격이 아닌가요? (공공PR은 공익형)" },
+    { "id": "m-copy",  "text": "사용한 사진·명화·문구의 저작권을 확인했나요? (명화는 저작권 만료 작품)" },
+    { "id": "m-info",  "text": "날짜·장소 등 정보가 정확한가요?" },
+    { "id": "m-video", "text": "영상으로 송출한다면 깜빡임 없이 슬라이드 전환 수준인가요? (구청 심의 대상)" },
+    { "id": "m-night", "text": "야간 송출용(밝기 낮춘) 버전을 준비했나요?" }
+  ],
+
+  "aiLabel": {
+    "text": "AI 활용 제작",
+    "fontSize": 28,
+    "note": "AI 라벨은 정보 전달용이 아니라 표시 의무용이므로 최소 글자 크기 규칙에서 제외합니다(작게 두되 식별 가능하게)."
+  }
+}

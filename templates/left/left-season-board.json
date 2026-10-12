@@ -1,0 +1,52 @@
+{
+  "id": "left-season-board",
+  "name": "계절 글판",
+  "category": "계절 인사",
+  "signage": "left",
+  "description": "광화문 글판처럼 짧은 계절 문구",
+  "background": {
+    "type": "linear",
+    "angle": 0,
+    "stops": [
+      {
+        "offset": 0,
+        "color": "#5C5F3A"
+      },
+      {
+        "offset": 1,
+        "color": "#3E5F45"
+      }
+    ]
+  },
+  "objects": [
+    {
+      "type": "text",
+      "role": "title",
+      "text": "천천히 걸어도 좋은 계절, 가을입니다",
+      "left": 32,
+      "top": 48,
+      "width": 1600,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 84,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "미림 글판 · 가을",
+      "left": 32,
+      "top": 162,
+      "width": 1600,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 44,
+      "fontWeight": 700,
+      "fill": "#F6F1E4",
+      "textAlign": "center",
+      "lineHeight": 1.2
+    }
+  ],
+  "notes": "시·노래 가사 등 남의 글을 옮길 때는 저작권을 확인하세요."
+}

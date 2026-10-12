@@ -1,0 +1,79 @@
+{
+  "id": "right-welcome",
+  "name": "방문 환영",
+  "category": "환영",
+  "signage": "right",
+  "description": "방문단 환영 메시지",
+  "background": {
+    "type": "solid",
+    "color": "#6E3B46"
+  },
+  "objects": [
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "WELCOME",
+      "left": 72,
+      "top": 88,
+      "width": 900,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 48,
+      "fontWeight": 900,
+      "fill": "#F6CDB8",
+      "textAlign": "left",
+      "lineHeight": 1.2,
+      "charSpacing": 400
+    },
+    {
+      "type": "text",
+      "role": "title",
+      "text": "미림마이스터고등학교\n방문을 환영합니다",
+      "left": 72,
+      "top": 160,
+      "width": 1136,
+      "fontFamily": "Cafe24 Dangdanghae",
+      "fontSize": 84,
+      "fontWeight": 400,
+      "fill": "#FFFFFF",
+      "textAlign": "left",
+      "lineHeight": 1.15
+    },
+    {
+      "type": "rect",
+      "left": 72,
+      "top": 376,
+      "width": 8,
+      "height": 104,
+      "fill": "#FFE38A",
+      "name": "세로 막대"
+    },
+    {
+      "type": "text",
+      "role": "body",
+      "text": "○○교육청 방문단 여러분",
+      "left": 104,
+      "top": 388,
+      "width": 1104,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 64,
+      "fontWeight": 800,
+      "fill": "#FFE38A",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    },
+    {
+      "type": "text",
+      "role": "caption",
+      "text": "Welcome to Mirim Meister School",
+      "left": 72,
+      "top": 528,
+      "width": 1136,
+      "fontFamily": "Pretendard Variable",
+      "fontSize": 42,
+      "fontWeight": 700,
+      "fill": "#F6F1E4",
+      "textAlign": "left",
+      "lineHeight": 1.2
+    }
+  ]
+}
