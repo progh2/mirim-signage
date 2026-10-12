@@ -1,8 +1,9 @@
 // 템플릿 스키마(사람이 쓰기 쉬운 JSON) <-> Fabric 객체 변환
+import { setImageFx, setRadius } from './imagetools.js';
 // 스키마 형식은 docs/TEMPLATE_GUIDE.md 참고
 
 export const CUSTOM_PROPS = [
-  'uid', 'name', 'role', 'gradSpec', 'bgSpec', 'brightness', 'slotLabel', 'locked',
+  'uid', 'name', 'role', 'gradSpec', 'bgSpec', 'brightness', 'fx', 'radius', 'slotLabel', 'locked',
   'selectable', 'evented', 'lockMovementX', 'lockMovementY', 'hasControls', 'aiGenerated'
 ];
 
@@ -137,7 +138,9 @@ export async function fromSchemaObject(o, fonts) {
     }
     case 'image': {
       const img = await loadImage(o.src);
-      img.set({ ...common(o), name: o.name || (o.role === 'background-image' ? '배경 이미지' : '이미지') });
+      img.set({ ...common(o), name: o.name || (o.role === 'background-image' ? '배경 이미지' : '이미지'), flipX: !!o.flipX, flipY: !!o.flipY });
+      if (o.crop) img.set({ cropX: o.crop.x, cropY: o.crop.y, width: o.crop.w, height: o.crop.h });
+      if (o.stroke) img.set({ stroke: o.stroke, strokeWidth: o.strokeWidth || 4 });
       if (o.width && o.height) {
         const fit = o.fit || 'cover';
         const sx = o.width / img.width, sy = o.height / img.height;
@@ -155,7 +158,8 @@ export async function fromSchemaObject(o, fonts) {
           }
         }
       }
-      if (o.brightness) setBrightness(img, o.brightness);
+      if (o.fx) setImageFx(img, o.fx); else if (o.brightness) setBrightness(img, o.brightness);
+      if (o.radius) setRadius(img, o.radius);
       return img;
     }
     case 'imageSlot':
@@ -166,12 +170,7 @@ export async function fromSchemaObject(o, fonts) {
   }
 }
 
-export function setBrightness(img, v) {
-  img.brightness = v;
-  img.filters = (img.filters || []).filter(f => f.type !== 'Brightness');
-  if (v) img.filters.push(new fabric.Image.filters.Brightness({ brightness: v }));
-  img.applyFilters();
-}
+export function setBrightness(img, v) { setImageFx(img, { brightness: v }); }
 
 export function roleName(role) {
   return { title: '제목', body: '본문', caption: '보조설명', 'ai-label': 'AI 활용 표시' }[role];
@@ -212,11 +211,14 @@ export function toSchemaObject(obj) {
     }
     case 'image': {
       const src = obj.getSrc ? obj.getSrc() : obj._element?.src;
+      const el = obj._originalElement || obj._element;
+      const full = el && (obj.cropX || obj.cropY || obj.width !== (el.naturalWidth || el.width) || obj.height !== (el.naturalHeight || el.height));
+      const extra = { crop: full ? { x: obj.cropX || 0, y: obj.cropY || 0, w: obj.width, h: obj.height } : undefined, flipX: obj.flipX || undefined, flipY: obj.flipY || undefined, fx: obj.fx || undefined, radius: obj.radius || undefined, stroke: obj.stroke || undefined, strokeWidth: obj.stroke ? obj.strokeWidth : undefined };
       const cp = obj.clipPath;
       if (cp && cp.absolutePositioned) {
-        return clean({ type: 'image', ...base, left: round(cp.left), top: round(cp.top), src, width: round(cp.width * (cp.scaleX || 1)), height: round(cp.height * (cp.scaleY || 1)), fit: 'cover', brightness: obj.brightness || undefined });
+        return clean({ type: 'image', ...base, ...extra, left: round(cp.left), top: round(cp.top), src, width: round(cp.width * (cp.scaleX || 1)), height: round(cp.height * (cp.scaleY || 1)), fit: 'cover', brightness: obj.brightness || undefined });
       }
-      return clean({ type: 'image', ...base, src, width: round(obj.getScaledWidth()), height: round(obj.getScaledHeight()), fit: 'stretch', brightness: obj.brightness || undefined });
+      return clean({ type: 'image', ...base, ...extra, src, width: round(obj.width * obj.scaleX), height: round(obj.height * obj.scaleY), fit: 'stretch', brightness: obj.brightness || undefined });
     }
     case 'group':
       if (obj.role === 'image-slot') return clean({ type: 'imageSlot', ...base, width: round(obj.getScaledWidth()), height: round(obj.getScaledHeight()), label: obj.slotLabel || undefined });

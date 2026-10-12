@@ -335,3 +335,8 @@ input[type=range] { width: 100%; accent-color: var(--accent); }
   .topbar { height: auto; flex-wrap: wrap; padding: 8px; }
   .top-actions { flex-wrap: wrap; }
 }
+
+.stage.dropping { outline: 3px dashed var(--accent); outline-offset: -12px; background-color: #0f1a20; }
+.stage.dropping::after { content: '여기에 놓으면 이미지가 추가됩니다'; position: absolute; top: 120px; left: 50%; transform: translateX(-50%); background: var(--accent); color: var(--accent-ink); padding: 6px 14px; border-radius: 20px; font-weight: 700; pointer-events: none; }
+.stage { position: relative; }
+.stage-foot b { color: var(--text); }

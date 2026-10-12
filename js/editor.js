@@ -1,4 +1,5 @@
 // 캔버스 편집기 — Fabric.js 5 기반
+import { prepareImage } from './imagetools.js';
 import { CUSTOM_PROPS, newUid, fromSchemaObject, toSchemaObject, makeGradient, makeSlot, loadImage, setBrightness, roleName } from './schema.js';
 
 const LS_PREFIX = 'mirim.project.';
@@ -351,8 +352,8 @@ export class Editor extends EventTarget {
     if (o) this._place(o);
   }
 
-  async addImage(dataURL, { asBackground = false, name } = {}) {
-    const img = await loadImage(dataURL);
+  async addImage(dataURL, { asBackground = false, name, at } = {}) {
+    const img = await loadImage(await prepareImage(dataURL));
     img.uid = newUid();
     if (asBackground) {
       const s = Math.max(this.W / img.width, this.H / img.height);
@@ -365,13 +366,16 @@ export class Editor extends EventTarget {
       return img;
     }
     const s = Math.min((this.W * 0.6) / img.width, (this.H * 0.7) / img.height, 1);
-    img.set({ scaleX: s, scaleY: s, name: name || '이미지', ...this._center(img.width * s, img.height * s) });
+    const pos = at
+      ? { left: Math.max(0, Math.min(this.W - img.width * s, at.x - img.width * s / 2)), top: Math.max(0, Math.min(this.H - img.height * s, at.y - img.height * s / 2)) }
+      : this._center(img.width * s, img.height * s);
+    img.set({ scaleX: s, scaleY: s, name: name || '이미지', ...pos });
     return this._place(img);
   }
 
   // 이미지 자리(슬롯) 또는 이미지를 새 이미지로 교체 — 작품은 자르지 않고 영역 안에 맞춤
   async replaceImage(target, dataURL) {
-    const img = await loadImage(dataURL);
+    const img = await loadImage(await prepareImage(dataURL));
     const r = target.getBoundingRect(true, true);
     const s = Math.min(r.width / img.width, r.height / img.height);
     img.set({
@@ -402,7 +406,31 @@ export class Editor extends EventTarget {
     }, this.fonts);
     await this.fonts.load(o.fontFamily, o.fontWeight, o.text);
     o.initDimensions();
+    // 표시 위치의 배경이 밝으면 어두운 글자로
+    try {
+      const cv = this.renderToCanvas();
+      const r = o.getBoundingRect(true, true);
+      const d = cv.getContext('2d').getImageData(Math.max(0, r.left), Math.max(0, r.top), Math.max(1, Math.min(r.width, this.W - r.left)), Math.max(1, Math.min(r.height, this.H - r.top))).data;
+      let sum = 0; for (let i = 0; i < d.length; i += 16) sum += (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
+      if (sum / (d.length / 16) > 0.6) o.set('fill', 'rgba(32,33,36,0.8)');
+    } catch {}
     return this._place(o, { select: false });
+  }
+
+  // 화면(클라이언트) 좌표 → 캔버스 좌표
+  clientToCanvas(clientX, clientY) {
+    const b = this.c.upperCanvasEl.getBoundingClientRect();
+    return { x: (clientX - b.left) * (this.W / b.width), y: (clientY - b.top) * (this.H / b.height) };
+  }
+  objectAt(pt) {
+    const objs = this.c.getObjects();
+    for (let i = objs.length - 1; i >= 1; i--) {
+      const o = objs[i];
+      if (!o.visible || o.locked) continue;
+      const r = o.getBoundingRect(true, true);
+      if (pt.x >= r.left && pt.x <= r.left + r.width && pt.y >= r.top && pt.y <= r.top + r.height) return o;
+    }
+    return null;
   }
 
   // ---------------- 편집 동작 ----------------

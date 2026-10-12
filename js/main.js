@@ -239,6 +239,68 @@ async function boot() {
     toast('프로젝트 파일을 저장했습니다. ‘열기’로 이어서 편집할 수 있어요.', 'ok');
   }
 
+  // ---------- 이미지 넣기: 끌어 놓기 · 붙여넣기 ----------
+  const OBJ_MARK = '[미림사이니지-객체]';
+  async function insertImages(files, pt) {
+    let i = 0;
+    for (const f of files) {
+      try {
+        const data = await readAs(f);
+        const target = pt && i === 0 ? editor.objectAt(pt) : null;
+        if (target && target.role === 'image-slot') {
+          await editor.replaceImage(target, data);
+          toast('이미지 자리에 넣었습니다.', 'ok');
+        } else {
+          const at = pt && pt.x >= 0 && pt.y >= 0 && pt.x <= editor.W && pt.y <= editor.H ? { x: pt.x + i * 30, y: pt.y + i * 30 } : null;
+          await editor.addImage(data, { name: (f.name || '붙여넣은 이미지').replace(/\.\w+$/, ''), at });
+        }
+      } catch (e) { toast(e.message, 'err'); }
+      i++;
+    }
+    app.refreshAll();
+  }
+  // 페이지 아무 곳에나 놓았을 때 브라우저가 파일을 열어 버리지 않도록
+  window.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+  window.addEventListener('drop', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+  const stageEl = $('#stage');
+  stageEl.addEventListener('dragover', e => {
+    if (![...(e.dataTransfer?.types || [])].includes('Files')) return;
+    e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; stageEl.classList.add('dropping');
+  });
+  stageEl.addEventListener('dragleave', e => { if (!stageEl.contains(e.relatedTarget)) stageEl.classList.remove('dropping'); });
+  stageEl.addEventListener('drop', async e => {
+    e.preventDefault(); stageEl.classList.remove('dropping');
+    const files = [...(e.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+    if (!files.length) { toast('이미지 파일(PNG·JPG·WebP·GIF)만 넣을 수 있습니다. 웹페이지 이미지는 저장한 뒤 끌어 오세요.', 'err'); return; }
+    await insertImages(files, editor.clientToCanvas(e.clientX, e.clientY));
+  });
+  const typingIn = t => ['input', 'textarea', 'select'].includes((t?.tagName || '').toLowerCase()) || t?.isContentEditable;
+  document.addEventListener('copy', e => {
+    if (typingIn(e.target) || $('#modal').open || editor.active()?.isEditing || !editor.active()) return;
+    e.preventDefault();
+    e.clipboardData.setData('text/plain', OBJ_MARK);
+    editor.copy();
+  });
+  document.addEventListener('paste', async e => {
+    if (typingIn(e.target) || $('#modal').open || editor.active()?.isEditing) return;
+    const items = [...(e.clipboardData?.items || [])];
+    const imgs = items.filter(it => it.kind === 'file' && it.type.startsWith('image/')).map(it => it.getAsFile()).filter(Boolean);
+    if (imgs.length) {
+      e.preventDefault();
+      const a = editor.active();
+      if (a && (a.role === 'image-slot') && imgs.length === 1) { await editor.replaceImage(a, await readAs(imgs[0])); app.refreshAll(); toast('이미지 자리에 붙여넣었습니다.', 'ok'); }
+      else await insertImages(imgs, null);
+      return;
+    }
+    const text = (e.clipboardData?.getData('text/plain') || '').trim();
+    if (text === OBJ_MARK || (!text && editor.clipboard)) { e.preventDefault(); editor.paste(); return; }
+    if (text) {
+      e.preventDefault();
+      await editor.addText('body', text.slice(0, 300));
+      toast('붙여넣은 글자를 본문으로 넣었습니다.', 'ok');
+    }
+  });
+
   // ---------- 키보드 ----------
   document.addEventListener('keydown', e => {
     const tag = (e.target.tagName || '').toLowerCase();
@@ -249,8 +311,6 @@ async function boot() {
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? editor.redo() : editor.undo(); }
     else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); editor.redo(); }
     else if (mod && e.key.toLowerCase() === 'd') { e.preventDefault(); editor.duplicate(); }
-    else if (mod && e.key.toLowerCase() === 'c') { editor.copy(); }
-    else if (mod && e.key.toLowerCase() === 'v') { e.preventDefault(); editor.paste(); }
     else if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); saveProject(); }
     else if (e.key === 'Delete' || e.key === 'Backspace') { if (a) { e.preventDefault(); editor.removeActive(); } }
     else if (e.key.startsWith('Arrow') && a) {

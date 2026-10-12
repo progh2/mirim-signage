@@ -1,5 +1,5 @@
 // 가이드 규칙 점검(로컬) + 자동 보정
-import { parseColor, relLum, contrastLum, rgbToOklch, rgbToOklab, oklchOfHex, lightnessLevel, clampOklchHex, toHex } from './color.js';
+import { parseColor, relLum, contrastLum, rgbToOklch, rgbToOklab, oklchOfHex, oklchToRgb, lightnessLevel, clampOklchHex, toHex } from './color.js';
 
 const isText = o => o.type === 'textbox' || o.type === 'i-text' || o.type === 'text';
 
@@ -192,7 +192,7 @@ export function runChecks(editor) {
 }
 
 // ---------------- 자동 보정 ----------------
-export async function autoFix(editor) {
+export async function autoFix(editor, { colors = true } = {}) {
   const g = editor.guide, spec = editor.spec, fonts = editor.fonts, T = g.typography;
   const changes = [];
   editor.muted++;
@@ -203,7 +203,7 @@ export async function autoFix(editor) {
   const bg = editor.bg;
   const B = g.color.bgL;
   const clampOpts = { Lmin: B.recommendedMin, Lmax: B.autoFixMax ?? B.recommendedMax, Cmax: g.color.bgChroma.recommendedMax };
-  if (bg?.bgSpec) {
+  if (colors && bg?.bgSpec) {
     const sp = JSON.parse(JSON.stringify(bg.bgSpec));
     if (sp.type === 'solid') {
       const nc = clampOklchHex(sp.color, clampOpts);
@@ -214,7 +214,7 @@ export async function autoFix(editor) {
     editor.muted--; editor.setBackground(sp); editor.muted++;
   }
   // 배경 이미지가 밝으면 어둡게
-  for (const o of objs.filter(o => o.type === 'image' && o.role === 'background-image')) {
+  for (const o of colors ? objs.filter(o => o.type === 'image' && o.role === 'background-image') : []) {
     const st = pixelStats(editor.renderToCanvas({ hide: x => isText(x) }), 6);
     if (st.apl > g.brightness.aplGood) {
       const { setBrightness } = await import('./schema.js');
@@ -223,7 +223,7 @@ export async function autoFix(editor) {
     }
   }
   // 도형 채도
-  for (const o of objs) {
+  for (const o of colors ? objs : []) {
     if (isText(o) || o.role === 'background' || o.type === 'image' || o.type === 'group') continue;
     if (typeof o.fill === 'string') {
       const hx = parseColor(o.fill) && toHex(parseColor(o.fill));
@@ -265,9 +265,23 @@ export async function autoFix(editor) {
     if (!hex || !reg) continue;
     const cr = contrastLum(relLum(parseColor(hex)), reg.mean);
     if (cr < g.color.minContrast) {
-      const candidates = g.color.texts.map(c => c.hex).concat(['#FFFFFF']);
-      let best = '#FFFFFF', bestCr = 0;
-      for (const c of candidates) { const v = contrastLum(relLum(parseColor(c)), reg.mean); if (v > bestCr) { bestCr = v; best = c; } }
+      // 밝은 배경이면 어두운 글자도 후보로 (사용자가 밝은 배경을 지정한 경우)
+      // 1순위: 같은 색 계열(색상 유지)에서 명도만 조절해 대비 확보 — 예) 초록 글자 → 진한 초록
+      let best = null, bestCr = 0;
+      const o0 = oklchOfHex(hex);
+      if (o0) {
+        const dir = reg.mean > 0.18 ? -1 : 1; // 밝은 배경 → 어둡게, 어두운 배경 → 밝게
+        for (let L = o0.L; L >= 0.05 && L <= 0.99; L += dir * 0.03) {
+          const c = toHex(oklchToRgb({ L, C: o0.C, h: o0.h }));
+          const v = contrastLum(relLum(parseColor(c)), reg.mean);
+          if (v >= g.color.minContrast + 0.2) { best = c; bestCr = v; break; }
+        }
+      }
+      // 2순위: 팔레트·흑백 중 대비가 가장 큰 색
+      if (!best) {
+        const candidates = g.color.texts.map(c => c.hex).concat(['#FFFFFF', '#202124', '#111111']);
+        for (const c of candidates) { const v = contrastLum(relLum(parseColor(c)), reg.mean); if (v > bestCr) { bestCr = v; best = c; } }
+      }
       t.set({ fill: best, opacity: 1 });
       changes.push(`“${editor.layerName(t)}” 글자색 → ${best} (${bestCr.toFixed(1)}:1)`);
       if (bestCr < g.color.minContrast) {

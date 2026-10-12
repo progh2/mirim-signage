@@ -187,10 +187,16 @@ export function renderAiDesignPanel(app) {
   root.className = 'ai-panel';
   const purpose = h('select', {}, ...['학교 행사 공지', '기념일·법정기념일', '계절 인사', '연말연시 인사', '공공PR(명화·예술 갤러리)', '방문·환영', '캠페인·안전', '기타'].map(v => h('option', { value: v }, v)));
   const content = h('textarea', { placeholder: '예)\n2027학년도 신입생 입학설명회\n일시: 11월 8일(토) 오후 2시\n장소: 미림마이스터고 대강당\n대상: 중학교 3학년 학생·학부모' });
-  const style = h('input', { type: 'text', placeholder: '예) 가을 느낌, 차분한 네이비, 단정하게' });
+  const style = h('textarea', { rows: 2, style: { minHeight: '52px' }, placeholder: '예) 가을 느낌, 차분한 네이비, 단정하게\n예) 흰 바탕에 구글 브랜드 색(파랑·빨강·노랑·초록) 포인트' });
   const useCurrent = h('input', { type: 'checkbox' });
   const genBg = h('input', { type: 'checkbox', checked: getConfig().imageEnabled });
   const refine = h('input', { type: 'checkbox', checked: true });
+  const keepColors = h('input', { type: 'checkbox' });
+  let keepTouched = false;
+  keepColors.addEventListener('change', () => { keepTouched = true; });
+  // 분위기 입력에 배경·색 지정이 들어 있으면 자동으로 ‘내 색 유지’를 켠다
+  const COLOR_WORDS = /흰|하얀|화이트|white|밝은 ?배경|배경색|바탕|브랜드|컬러|색상|색으로|#[0-9a-f]{3,6}\b|빨강|빨간|파랑|파란|노랑|노란|초록|검정|검은|black|구글|google/i;
+  style.addEventListener('input', () => { if (!keepTouched) keepColors.checked = COLOR_WORDS.test(style.value); });
   let refImg = null;
   const refLabel = h('span', { class: 'hint' }, '');
   const status = h('div', { class: 'status' });
@@ -207,6 +213,8 @@ export function renderAiDesignPanel(app) {
     h('label', { class: 'chk' }, useCurrent, ' 현재 디자인을 바탕으로 수정'),
     h('label', { class: 'chk' }, genBg, ' 배경 이미지도 AI로 생성 (이미지 API 필요)'),
     h('label', { class: 'chk' }, refine, ' 결과를 AI가 보고 1회 더 다듬기 (비전 모델 필요)'),
+    h('label', { class: 'chk' }, keepColors, ' 배경·색은 내 요청대로 (가이드 배색 자동 보정 안 함)'),
+    h('p', { class: 'hint', style: { margin: '2px 0 0 22px' } }, '분위기에 색을 적으면 자동으로 켜집니다. 가이드와 다른 배색(예: 흰 바탕)은 점검에 경고로 남습니다.'),
     btn, status);
 
   btn.addEventListener('click', async () => {
@@ -214,7 +222,7 @@ export function renderAiDesignPanel(app) {
     btn.disabled = true;
     const log = m => { status.innerHTML = `<span class="spinner"></span>${esc(m)}`; };
     try {
-      await aiDesign(app, { purpose: purpose.value, content: content.value, style: style.value, useCurrent: useCurrent.checked, genBg: genBg.checked, refine: refine.checked, refImg }, log);
+      await aiDesign(app, { purpose: purpose.value, content: content.value, style: style.value, useCurrent: useCurrent.checked, genBg: genBg.checked, refine: refine.checked, keepColors: keepColors.checked, refImg }, log);
       status.textContent = '완료 — 오른쪽 ‘가이드 점검’ 결과를 확인하고 필요한 부분을 직접 다듬으세요.';
     } catch (e) {
       status.textContent = e.message;
@@ -237,7 +245,7 @@ function downscale(dataURL, max) {
   });
 }
 
-function designSystemPrompt(editor, exampleTpl) {
+function designSystemPrompt(editor, exampleTpl, { keepColors = false } = {}) {
   const g = editor.guide, s = editor.spec, fonts = editor.fonts;
   const fontLines = fonts.fonts.filter(f => !f.user).map(f => `- "${f.family}" (${f.label}) 굵기 ${f.weights.join('/')} · ${f.use.includes('body') ? '제목·본문' : '제목 전용'}`).join('\n');
   const T = g.typography;
@@ -249,8 +257,11 @@ ${guideRulesText(g, editor.signage)}
 [글자 크기 px] 제목 ${T.presets[0].px}~96, 본문 ${T.presets[1].px}, 보조설명 ${T.presets[2].px}. ${T.minPx} 미만 금지. 줄 높이는 fontSize×lineHeight(1.15~1.3).
 [사용 가능한 글꼴 — 이 목록만]
 ${fontLines}
-[권장 배경색] ${g.color.backgrounds.map(b => b.hex).join(', ')} (또는 명도 5~8단계·저채도 색)
-[권장 글자색] ${g.color.texts.map(b => b.hex).join(', ')}
+${keepColors
+  ? `[색상 — 사용자 지정 우선] 사용자가 '원하는 분위기·디자인'에서 배경색·브랜드 색·색 조합을 지정했습니다. 배색 규칙보다 사용자의 색 지정을 **반드시 우선** 따르세요(예: 흰 바탕을 요청하면 background 는 #FFFFFF 계열). 밝은 배경이면 글자는 어두운 색으로 해서 대비 4.5:1 이상을 지키세요. 가이드와 다른 점은 intent 끝에 '(가이드 참고: …)'로 한 줄 적으세요.
+[참고 — 가이드 권장 배경색] ${g.color.backgrounds.map(b => b.hex).join(', ')}`
+  : `[권장 배경색] ${g.color.backgrounds.map(b => b.hex).join(', ')} (또는 명도 5~8단계·저채도 색)
+[권장 글자색] ${g.color.texts.map(b => b.hex).join(', ')}`}
 
 [출력 JSON 형식]
 {
@@ -262,22 +273,27 @@ ${fontLines}
     {"type":"text","role":"title|body|caption","text":"줄바꿈은 \\n","left":숫자,"top":숫자,"width":숫자,"fontFamily":"목록의 글꼴","fontSize":숫자,"fontWeight":숫자,"fill":"#RRGGBB","textAlign":"left|center|right","lineHeight":1.2},
     {"type":"rect","left":..,"top":..,"width":..,"height":..,"fill":"#RRGGBB 또는 rgba(0,0,0,0.3)","rx":0},
     {"type":"circle","left":..,"top":..,"radius":..,"fill":".."},
-    {"type":"line","x1":..,"y1":..,"x2":..,"y2":..,"stroke":"#..","strokeWidth":4}
+    {"type":"line","x1":..,"y1":..,"x2":..,"y2":..,"stroke":"#..","strokeWidth":4},
+    {"type":"image","ref":"img1","left":..,"top":..,"width":..,"height":..}  ← 참고 예시에 image(ref) 가 있을 때만. 같은 ref 를 그대로 쓰고 위치·크기만 정함
   ]
 }
-규칙: objects 는 뒤에서 앞 순서. 글자 객체는 3~6개 이내, 핵심만. 장식 도형은 저채도·반투명으로 절제. 글자끼리 겹치지 않게 top 을 (이전 top + fontSize×lineHeight×줄수 + 간격)으로 계산. 한국어 문구는 사용자가 준 사실(날짜·장소)을 바꾸지 말 것. 학교 이름 홍보·광고 문구를 과하게 넣지 말 것. JSON 만 출력.
+규칙: objects 는 뒤에서 앞 순서. 글자 객체는 3~6개 이내, 핵심만. 장식 도형은 ${keepColors ? '사용자가 지정한 색을 쓰되 과하지 않게' : '저채도·반투명으로 절제'}. 글자끼리 겹치지 않게 top 을 (이전 top + fontSize×lineHeight×줄수 + 간격)으로 계산. 한국어 문구는 사용자가 준 사실(날짜·장소)을 바꾸지 말 것. 학교 이름 홍보·광고 문구를 과하게 넣지 말 것. JSON 만 출력.
 
-[참고 예시 — 같은 화면의 템플릿]
+[참고 예시 — 같은 화면의 ${exampleTpl?._current ? '현재 디자인' : '템플릿'}]
 ${JSON.stringify(exampleTpl ? { background: exampleTpl.background, objects: exampleTpl.objects } : {})}`;
 }
 
 const ALLOWED = new Set(['text', 'rect', 'circle', 'line', 'triangle']);
-function sanitizeDesign(d, editor) {
+function sanitizeDesign(d, editor, imageRefs = {}) {
   const s = editor.spec, fonts = editor.fonts;
   const num = (v, def) => (typeof v === 'number' && isFinite(v) ? v : (parseFloat(v) || def));
   const hex = v => (typeof v === 'string' && /^(#[0-9a-f]{6}|#[0-9a-f]{3}|rgba?\([^)]+\))$/i.test(v.trim()) ? v.trim() : null);
-  const objs = (Array.isArray(d.objects) ? d.objects : []).filter(o => o && ALLOWED.has(o.type)).slice(0, 24).map(o => {
+  const objs = (Array.isArray(d.objects) ? d.objects : []).filter(o => o && (ALLOWED.has(o.type) || (o.type === 'image' && imageRefs[o.ref]))).slice(0, 24).map(o => {
     const r = { ...o };
+    if (r.type === 'image') {
+      const src = imageRefs[r.ref];
+      return { ...src.schema, left: num(r.left, src.schema.left), top: num(r.top, src.schema.top), width: num(r.width, src.schema.width), height: num(r.height, src.schema.height), fit: 'contain', _ref: r.ref };
+    }
     ['left', 'top', 'width', 'height', 'radius', 'x1', 'y1', 'x2', 'y2', 'fontSize', 'rx', 'strokeWidth', 'lineHeight'].forEach(k => { if (k in r) r[k] = num(r[k], 0); });
     if (r.type === 'text') {
       r.text = String(r.text ?? '').slice(0, 200);
@@ -294,7 +310,7 @@ function sanitizeDesign(d, editor) {
       if (r.fill !== undefined) r.fill = hex(r.fill) || 'rgba(0,0,0,0.25)';
       if (r.stroke !== undefined) r.stroke = hex(r.stroke) || '#FFFFFF';
     }
-    delete r.src;
+    delete r.src; delete r.ref;
     return r;
   });
   let bg = d.background;
@@ -305,30 +321,70 @@ function sanitizeDesign(d, editor) {
   return { name: String(d.name || 'AI 디자인').slice(0, 40), intent: d.intent, background: bg, backgroundImagePrompt: typeof d.backgroundImagePrompt === 'string' ? d.backgroundImagePrompt : '', objects: objs };
 }
 
+// 프롬프트에 넣을 템플릿에서 이미지 데이터(base64)를 빼고 참조(ref)로 바꾼다 — 토큰 폭증 방지
+function promptSafeTemplate(tpl) {
+  const refs = {};
+  let n = 0;
+  const objects = [];
+  for (const o of tpl.objects || []) {
+    if (o.type === 'image') {
+      if (o.role === 'background-image') continue; // 배경 이미지는 그대로 유지(아래에서 다시 붙임)
+      const ref = 'img' + (++n);
+      refs[ref] = { schema: o };
+      objects.push({ type: 'image', ref, left: o.left, top: o.top, width: o.width, height: o.height, name: o.name });
+    } else if (o.type === 'imageSlot') {
+      objects.push({ type: 'rect', left: o.left, top: o.top, width: o.width, height: o.height, fill: 'rgba(255,255,255,0.06)', note: '이미지 자리' });
+    } else if (o.role !== 'ai-label') objects.push(o);
+  }
+  return { tpl: { background: tpl.background, objects, _current: tpl._current }, refs };
+}
+
+function textLength(messages) {
+  return messages.reduce((n, m) => n + (typeof m.content === 'string' ? m.content.length : m.content.filter(p => p.type === 'text').reduce((a, p) => a + p.text.length, 0)), 0);
+}
+
 async function aiDesign(app, req, log) {
   const editor = app.editor;
-  const example = req.useCurrent ? editor.toTemplate() : app.templates.list(editor.signage)[0];
-  const sys = designSystemPrompt(editor, example);
-  const userText = `용도: ${req.purpose}\n화면: ${editor.spec.name}\n들어갈 내용:\n${req.content}\n원하는 분위기·디자인: ${req.style || '가이드에 맞게 깔끔하게'}\n${req.useCurrent ? '※ 참고 예시는 현재 디자인입니다. 이를 바탕으로 요청 내용에 맞게 수정하세요.' : ''}${req.refImg ? '\n※ 첨부 이미지는 분위기 참고용입니다. 그대로 베끼지 말고 색감·구성만 참고하세요.' : ''}\n배경 이미지 생성: ${req.genBg ? '가능(backgroundImagePrompt 작성)' : '사용 안 함(빈 문자열)'}`;
+  let example, refs = {}, keepBgImage = null;
+  if (req.useCurrent) {
+    const cur = editor.toTemplate();
+    cur._current = true;
+    const safe = promptSafeTemplate(cur);
+    example = safe.tpl; refs = safe.refs;
+    keepBgImage = editor.c.getObjects().find(o => o.type === 'image' && o.role === 'background-image' && o.visible !== false) || null;
+  } else {
+    example = promptSafeTemplate(app.templates.list(editor.signage)[0] || { objects: [] }).tpl;
+  }
+  const sys = designSystemPrompt(editor, example, { keepColors: req.keepColors });
+  const userText = `[최우선 디자인 요청 — 반드시 반영] ${req.style || '가이드에 맞게 깔끔하게'}
+용도: ${req.purpose}
+화면: ${editor.spec.name}
+들어갈 내용:
+${req.content}
+${req.useCurrent ? '※ 참고 예시는 현재 디자인입니다. 이를 바탕으로 요청 내용에 맞게 수정하세요. image(ref) 요소는 사용자가 넣은 이미지이니 빼지 말고 위치·크기만 조정하세요.' : ''}${req.refImg ? '\n※ 첨부 이미지는 분위기 참고용입니다. 그대로 베끼지 말고 색감·구성만 참고하세요.' : ''}
+배경 이미지 생성: ${req.genBg && !keepBgImage ? '가능(backgroundImagePrompt 작성)' : '사용 안 함(빈 문자열)'}`;
+  const msgs = [{ role: 'system', content: sys }, { role: 'user', content: req.refImg ? imageMessage(userText, [req.refImg]) : userText }];
+  if (textLength(msgs) > 120000) throw new AIError('요청 내용이 너무 깁니다. 들어갈 내용을 줄이거나 ‘현재 디자인을 바탕으로 수정’을 꺼 보세요.');
   log('AI가 레이아웃을 구성하는 중…');
-  const raw = await chat([{ role: 'system', content: sys }, { role: 'user', content: req.refImg ? imageMessage(userText, [req.refImg]) : userText }], { json: true, temperature: 0.6 });
-  let design = sanitizeDesign(raw, editor);
+  const raw = await chat(msgs, { json: true, temperature: 0.6 });
+  let design = sanitizeDesign(raw, editor, refs);
   if (!design.objects.length) throw new AIError('AI가 유효한 디자인 요소를 만들지 못했습니다. 내용을 조금 더 구체적으로 적어 보세요.');
 
   let bgImage = null;
-  if (req.genBg && design.backgroundImagePrompt) {
+  if (req.genBg && !keepBgImage && design.backgroundImagePrompt) {
     log('배경 이미지를 생성하는 중… (30초~1분)');
     try {
-      bgImage = await generateImage(`${design.backgroundImagePrompt}. Wide banner background for an outdoor LED sign, no text, no letters, no logos, calm, dark, low saturation, soft, uncluttered center area for text.`);
+      bgImage = await generateImage(`${design.backgroundImagePrompt}. Wide banner background for an outdoor LED sign, no text, no letters, no logos, ${req.keepColors ? 'follow the requested colors,' : 'calm, dark, low saturation,'} soft, uncluttered center area for text.`);
     } catch (e) { toast('배경 이미지 생성 실패 — 단색 배경으로 진행합니다. ' + e.message, 'err'); }
   }
 
   const apply = async (d) => {
     await editor.applyTemplate({ signage: editor.signage, name: d.name, background: d.background, objects: d.objects, aiGenerated: true });
     if (bgImage) { const img = await editor.addImage(bgImage, { asBackground: true, name: 'AI 배경 이미지' }); img.aiGenerated = true; editor.c.discardActiveObject(); }
+    else if (keepBgImage) { editor.c.insertAt(keepBgImage, 1); }
     editor.aiUsed = true;
-    log('가이드 자동 점검·보정 중…');
-    await autoFix(editor);
+    log(req.keepColors ? '글자 크기·대비·여백 점검 중… (배색은 요청대로 유지)' : '가이드 자동 점검·보정 중…');
+    await autoFix(editor, { colors: !req.keepColors });
     await editor.addAiLabel();
     app.refreshAll();
   };
@@ -340,9 +396,9 @@ async function aiDesign(app, req, log) {
       const local = runChecks(editor);
       const png = editor.toPNG();
       const issues = local.items.filter(i => i.level === 'fail' || i.level === 'warn').map(i => `- ${i.title}: ${i.detail}`).join('\n') || '- 없음';
-      const t2 = `첨부는 방금 만든 디자인을 실제 해상도로 렌더링한 결과입니다(배경 이미지 포함).\n자동 점검 지적사항:\n${issues}\n\n겹침·잘림·가독성·여백·정보량 문제를 고친 JSON 전체를 같은 형식으로 다시 출력하세요. 내용(사실)은 바꾸지 마세요. backgroundImagePrompt 는 빈 문자열로.\n현재 JSON:\n${JSON.stringify({ background: design.background, objects: design.objects })}`;
+      const t2 = `첨부는 방금 만든 디자인을 실제 해상도로 렌더링한 결과입니다(배경 이미지 포함).\n자동 점검 지적사항:\n${issues}\n\n겹침·잘림·가독성·여백·정보량 문제를 고친 JSON 전체를 같은 형식으로 다시 출력하세요. 내용(사실)은 바꾸지 마세요. backgroundImagePrompt 는 빈 문자열로.${req.keepColors ? ' 사용자가 지정한 배경·색 구성은 그대로 유지하세요(배경 밝기 관련 지적은 무시).' : ''}\n최우선 디자인 요청: ${req.style}\n현재 JSON:\n${JSON.stringify({ background: design.background, objects: design.objects.map(o => o._ref ? { type: 'image', ref: o._ref, left: o.left, top: o.top, width: o.width, height: o.height } : o) })}`;
       const raw2 = await chat([{ role: 'system', content: sys }, { role: 'user', content: imageMessage(t2, [png]) }], { json: true, temperature: 0.3 });
-      const d2 = sanitizeDesign(raw2, editor);
+      const d2 = sanitizeDesign(raw2, editor, refs);
       if (d2.objects.length) { design = { ...d2, name: design.name }; await apply(design); }
     } catch (e) {
       toast('다듬기 단계는 건너뛰었습니다: ' + e.message.split('\n')[0], 'err');
@@ -352,5 +408,5 @@ async function aiDesign(app, req, log) {
   editor.c.requestRenderAll();
   editor.pushHistory();
   app.refreshAll();
-  toast(`AI 디자인 “${design.name}” 적용 완료`, 'ok');
+  toast(`AI 디자인 “${design.name}” 적용 완료` + (design.intent ? ` — ${design.intent}` : ''), 'ok');
 }

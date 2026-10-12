@@ -1,6 +1,6 @@
 // 속성·레이어·요소·점검 패널
 import { $, h, colorInput, normalizeHex, toast, pickFile, readAs } from './ui.js';
-import { setBrightness } from './schema.js';
+import { getImageFx, setImageFx, setRadius, openCropper, applyCrop } from './imagetools.js';
 import { oklchOfHex, lightnessLevel } from './color.js';
 
 const isText = o => o && (o.type === 'textbox' || o.type === 'i-text' || o.type === 'text');
@@ -201,14 +201,64 @@ function shapeProps(editor, app, o, apply) {
 
 function imageProps(editor, app, o, apply) {
   const wrap = h('div');
-  wrap.append(group('밝기 (빛 공해 고려)',
-    field('밝기', range(o.brightness || 0, v => { setBrightness(o, v); apply(o, {}); }, { min: -0.8, max: 0.3, step: 0.05 })),
-    h('p', { class: 'hint' }, '사진이 밝으면 값을 낮춰 어둡게 하세요. 글자를 올릴 배경은 -0.3 정도를 권장합니다.'),
+  const fx = getImageFx(o);
+  let raf = 0;
+  const setFx = patch => {
+    Object.assign(fx, patch);
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { setImageFx(o, fx); apply(o, {}); });
+  };
+  const el = o._originalElement || o._element;
+  const natW = el?.naturalWidth || el?.width || o.width, natH = el?.naturalHeight || el?.height || o.height;
+  const cropped = (o.cropX || o.cropY || o.width !== natW || o.height !== natH);
+
+  // 자르기 · 회전 · 반전
+  wrap.append(group('자르기 · 회전 · 반전',
+    h('div', { class: 'row gap' },
+      h('button', { class: 'btn small primary', onclick: () => openCropper(o, {
+        signageRatio: editor.W / editor.H,
+        onApply: c => { applyCrop(o, c); apply(o, {}, { now: true }); app.refreshProps(); }
+      }) }, '✂ 자르기'),
+      cropped ? h('button', { class: 'btn small ghost', onclick: () => { applyCrop(o, { x: 0, y: 0, w: natW, h: natH }); apply(o, {}, { now: true }); app.refreshProps(); } }, '자르기 취소') : null),
+    h('div', { class: 'grid4', style: { marginTop: '6px' } },
+      h('button', { class: 'btn small ghost', title: '왼쪽으로 90° 회전', onclick: () => { o.rotate(((o.angle || 0) - 90 + 360) % 360); apply(o, {}, { now: true }); } }, '⟲ 90°'),
+      h('button', { class: 'btn small ghost', title: '오른쪽으로 90° 회전', onclick: () => { o.rotate(((o.angle || 0) + 90) % 360); apply(o, {}, { now: true }); } }, '⟳ 90°'),
+      h('button', { class: 'btn small ghost', title: '좌우 뒤집기', onclick: () => apply(o, { flipX: !o.flipX }, { now: true }) }, '⇋ 좌우'),
+      h('button', { class: 'btn small ghost', title: '상하 뒤집기', onclick: () => apply(o, { flipY: !o.flipY }, { now: true }) }, '⇵ 상하'))));
+
+  // 보정
+  const gray = h('input', { type: 'checkbox', checked: !!fx.grayscale });
+  gray.addEventListener('change', () => setFx({ grayscale: gray.checked }));
+  wrap.append(group('색 보정 (빛 공해 고려)',
+    field('밝기', range(fx.brightness, v => setFx({ brightness: v }), { min: -0.8, max: 0.4, step: 0.05 })),
+    field('대비', range(fx.contrast, v => setFx({ contrast: v }), { min: -0.6, max: 0.6, step: 0.05 })),
+    field('채도', range(fx.saturation, v => setFx({ saturation: v }), { min: -1, max: 0.6, step: 0.05 })),
+    field('흐림', range(fx.blur, v => setFx({ blur: v }), { min: 0, max: 0.6, step: 0.02 })),
+    field('흑백', h('label', { class: 'chk' }, gray, '흑백으로')),
+    h('div', { class: 'row gap' },
+      h('button', { class: 'btn small ghost', title: '글자를 올릴 배경용: 어둡게 + 채도 낮춤 + 살짝 흐림', onclick: () => { setFx({ brightness: -0.3, saturation: -0.3, blur: 0.06, contrast: -0.05 }); setTimeout(() => app.refreshProps(), 60); } }, '배경용 프리셋'),
+      h('button', { class: 'btn small ghost', onclick: () => { setFx({ brightness: 0, contrast: 0, saturation: 0, blur: 0, grayscale: false }); setTimeout(() => app.refreshProps(), 60); } }, '보정 초기화')),
+    h('p', { class: 'hint' }, '사진이 밝으면 밝기를 낮추세요. 글자를 올릴 배경은 ‘배경용 프리셋’을 권장합니다.')));
+
+  // 모양
+  wrap.append(group('모양',
+    field('모서리', range(o.radius || 0, v => { setRadius(o, v); apply(o, {}); }, { min: 0, max: Math.round(Math.min(o.getScaledWidth(), o.getScaledHeight()) / 2), step: 2 })),
+    field('테두리', h('div', { class: 'row gap' },
+      colorInput(toHexSafe(o.stroke || '#FFFFFF'), v => apply(o, { stroke: v, strokeWidth: o.strokeWidth || 6, strokeUniform: true }, { now: true })),
+      numInput(o.stroke ? o.strokeWidth : 0, v => apply(o, { strokeWidth: v, stroke: v ? (o.stroke || '#FFFFFF') : null, strokeUniform: true }, { now: true }), { min: 0, max: 40 }))),
+    field('그림자', h('label', { class: 'chk' }, (() => {
+      const c = h('input', { type: 'checkbox', checked: !!o.shadow });
+      c.addEventListener('change', () => apply(o, { shadow: c.checked ? new fabric.Shadow({ color: 'rgba(0,0,0,0.5)', blur: 24, offsetX: 0, offsetY: 8 }) : null }, { now: true }));
+      return c;
+    })(), '그림자')),
     field('불투명도', range(o.opacity ?? 1, v => apply(o, { opacity: v }), { min: 0.05, max: 1, step: 0.05 }))));
-  wrap.append(group('', h('div', { class: 'row gap' },
+
+  // 배치
+  wrap.append(group('배치', h('div', { class: 'row gap' },
     h('button', { class: 'btn small', onclick: () => app.replaceImageFlow(o) }, '이미지 교체'),
+    h('button', { class: 'btn small ghost', title: '가로세로 비율을 원본대로', onclick: () => apply(o, { scaleY: o.scaleX }, { now: true }) }, '비율 원래대로'),
     h('button', { class: 'btn small ghost', onclick: () => {
-      o.clipPath = null;
+      o.clipPath = null; o.radius = 0;
       const s = Math.max(editor.W / o.width, editor.H / o.height);
       o.set({ scaleX: s, scaleY: s, left: (editor.W - o.width * s) / 2, top: (editor.H - o.height * s) / 2, angle: 0, role: 'background-image', name: '배경 이미지' });
       o.moveTo(1); apply(o, {}, { now: true }); app.refreshLayers(); app.refreshProps();
@@ -217,6 +267,7 @@ function imageProps(editor, app, o, apply) {
       o.clipPath = null;
       const s = Math.min(editor.W / o.width, editor.H / o.height);
       o.set({ scaleX: s, scaleY: s, left: (editor.W - o.width * s) / 2, top: (editor.H - o.height * s) / 2, angle: 0 });
+      if (o.radius) setRadius(o, o.radius);
       apply(o, {}, { now: true });
     } }, '화면에 맞추기'))));
   return wrap;
