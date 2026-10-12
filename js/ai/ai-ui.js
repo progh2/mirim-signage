@@ -18,10 +18,19 @@ export function openAiSettings(onSaved) {
   const provSel = h('select', {}, ...Object.entries(PROVIDERS).map(([k, p]) => h('option', { value: k, selected: k === cfg.provider }, p.label)));
   const baseIn = h('input', { type: 'url', value: cfg.baseUrl, placeholder: 'https://.../v1' });
   const keyIn = h('input', { type: 'password', placeholder: st === 'ready' ? `저장된 키 ${maskKey(getKey())} (바꾸려면 새로 입력)` : st === 'locked' ? '암호로 잠긴 키가 있습니다' : 'sk-... 또는 발급받은 키', autocomplete: 'off' });
-  const modelIn = h('input', { type: 'text', value: cfg.model, placeholder: '예) gpt-4.1-mini, gemma3:12b', list: 'aiModelList' });
+  const modelIn = h('input', { type: 'text', value: cfg.model, placeholder: '예) gpt-4.1-mini, gemma3:12b', autocomplete: 'off' });
   const dl = h('datalist', { id: 'aiModelList' });
+  const chatPick = h('select', { hidden: true, style: { marginTop: '6px' } });
+  const imgPick = h('select', { hidden: true, style: { marginTop: '6px' } });
+  function fillPick(sel, list, input) {
+    sel.innerHTML = '';
+    sel.append(h('option', { value: '' }, list.length ? `— 목록에서 선택 (${list.length}개) —` : '— 해당 모델 없음 —'));
+    list.forEach(m => sel.append(h('option', { value: m, selected: m === input.value.trim() }, m)));
+    sel.hidden = false;
+    sel.onchange = () => { if (sel.value) input.value = sel.value; };
+  }
   const imgOn = h('input', { type: 'checkbox', checked: cfg.imageEnabled });
-  const imgModelIn = h('input', { type: 'text', value: cfg.imageModel, placeholder: '예) gpt-image-1 (없으면 비워두기)', list: 'aiModelList' });
+  const imgModelIn = h('input', { type: 'text', value: cfg.imageModel, placeholder: '예) gpt-image-1 (없으면 비워두기)', autocomplete: 'off' });
   const imgSize = h('select', {}, ...['1536x1024', '1024x1024', '1792x1024'].map(s => h('option', { value: s, selected: s === cfg.imageSize }, s)));
   const jsonOn = h('input', { type: 'checkbox', checked: cfg.jsonMode !== false });
   const help = h('div', { class: 'notice' });
@@ -31,7 +40,7 @@ export function openAiSettings(onSaved) {
   const passIn = h('input', { type: 'password', placeholder: '선택: 키를 암호로 잠그기 (이 브라우저 보관 시)', autocomplete: 'new-password' });
   const unlockRow = st === 'locked' ? h('div', { class: 'notice warn full' }, '암호로 잠긴 키가 있습니다. ',
     (() => { const p = h('input', { type: 'password', placeholder: '잠금 암호', style: { width: '180px', marginLeft: '6px' } }); const b = h('button', { class: 'btn small', style: { marginLeft: '6px' }, onclick: async () => { if (await unlock(p.value)) { toast('키 잠금을 해제했습니다(이 탭에서만).', 'ok'); updateAiDot(); openAiSettings(onSaved); } else toast('암호가 맞지 않습니다.', 'err'); } }, '잠금 해제'); return h('span', {}, p, b); })()) : null;
-  const status = h('div', { class: 'hint full' });
+  const status = h('div', { class: 'hint full', style: { whiteSpace: 'pre-line' } });
 
   const syncProvider = (reset) => {
     const p = PROVIDERS[provSel.value];
@@ -53,16 +62,28 @@ export function openAiSettings(onSaved) {
       unlockRow,
       h('label', {}, '키 보관 방식'), stor,
       h('label', {}, '키 잠금 암호'), passIn,
-      h('label', {}, '점검·디자인 모델'), h('div', { class: 'row gap', style: { flexWrap: 'nowrap' } }, modelIn,
+      h('label', {}, '점검·디자인 모델'), h('div', {}, h('div', { class: 'row gap', style: { flexWrap: 'nowrap' } }, modelIn,
         h('button', { class: 'btn small ghost', onclick: async () => {
           await applyTemp();
           status.textContent = '모델 목록을 불러오는 중…';
-          try { const ms = await listModels(); dl.innerHTML = ''; ms.forEach(m => dl.append(h('option', { value: m }))); status.textContent = `모델 ${ms.length}개 — 입력칸을 눌러 선택하세요. 이미지 점검·디자인에는 비전(이미지 입력) 지원 모델이 필요합니다.`; }
+          try {
+            const ms = await listModels();
+            dl.innerHTML = ''; ms.forEach(m => dl.append(h('option', { value: m })));
+            const isImg = m => /gpt-image|dall-e|imagen|flux|stable-diffusion|sdxl/i.test(m);
+            const notChat = m => isImg(m) || /embed|tts|whisper|moderation|transcribe|audio|realtime|davinci|babbage|^sora|computer-use/i.test(m);
+            const chats = ms.filter(m => !notChat(m)), imgs = ms.filter(isImg);
+            fillPick(chatPick, chats, modelIn);
+            fillPick(imgPick, imgs, imgModelIn);
+            const cur = modelIn.value.trim();
+            status.textContent = `모델 ${ms.length}개를 불러왔습니다 (대화 ${chats.length} · 이미지 ${imgs.length}). 아래 목록에서 고르세요.`
+              + (cur && !ms.includes(cur) ? `\n⚠ 현재 입력된 모델 “${cur}”은 이 계정 목록에 없습니다. 다른 모델을 고르세요.` : '')
+              + '\n점검·디자인에는 이미지 입력(비전)을 지원하는 모델이 필요합니다.';
+          }
           catch (e) { status.textContent = e.message; }
-        } }, '모델 목록 불러오기')),
+        } }, '모델 목록 불러오기')), chatPick),
       h('label', {}, ''), h('label', { class: 'chk' }, jsonOn, ' JSON 모드 사용(response_format) — 오류 시 자동으로 끔'),
       h('label', {}, 'AI 배경 이미지'), h('label', { class: 'chk' }, imgOn, ' AI 디자인 시 배경 이미지도 생성 (이미지 API 지원 시)'),
-      h('label', {}, '이미지 모델 · 크기'), h('div', { class: 'row gap', style: { flexWrap: 'nowrap' } }, imgModelIn, imgSize),
+      h('label', {}, '이미지 모델 · 크기'), h('div', {}, h('div', { class: 'row gap', style: { flexWrap: 'nowrap' } }, imgModelIn, imgSize), imgPick),
       status, dl),
     h('div', { class: 'notice', style: { marginTop: '14px' } },
       h('b', {}, '키는 어디에 저장되나요? '),
